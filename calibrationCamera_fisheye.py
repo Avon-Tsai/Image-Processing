@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Jan 29 10:26:39 2019
-
 @author: A40455
-
 """
 
 import cv2
@@ -13,6 +11,7 @@ import glob
 
 CHECKERBOARD = (6,9)
 subpix_criteria = (cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 30, 0.1)
+
 '''
 criteria: 這是迭代終止準則。當滿足這個準則時，算法迭代停止。
 實際上，它應該是一個3個參數的元組：(type, max_iter, epsilon) 
@@ -32,16 +31,17 @@ objp[0,:,:2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
 _img_shape = None
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
+
 images = glob.glob('*.jpg')
 for fname in images:
-    img = cv2.imread(fname)
-    
+    img = cv2.imread(fname)    
     img = cv2.resize(img,(1280,960) )
     
     if _img_shape == None:
         _img_shape = img.shape[:2]
     else:
         assert _img_shape == img.shape[:2], "All images must share the same size."
+         
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     # Find the chess board corners
     ret, corners = cv2.findChessboardCorners(gray, CHECKERBOARD, cv2.CALIB_CB_ADAPTIVE_THRESH+cv2.CALIB_CB_FAST_CHECK+cv2.CALIB_CB_NORMALIZE_IMAGE)
@@ -50,6 +50,7 @@ for fname in images:
         objpoints.append(objp)
         cv2.cornerSubPix(gray,corners,(3,3),(-1,-1),subpix_criteria)
         imgpoints.append(corners)
+         
 N_OK = len(objpoints)
 K = np.zeros((3, 3))
 D = np.zeros((4, 1)) # 在fisheye模型中，畸變係數主要是一個四維的向量 {k1,k2,k3,k4}
@@ -79,8 +80,6 @@ print("DIM=" + str(_img_shape[::-1]))
 print("K=np.array(" + str(K.tolist()) + ")")
 print("D=np.array(" + str(D.tolist()) + ")")
 
-
-
 '''
 DIM， K， D是固定不變的，
 因此，map1和map2也是不變的， 
@@ -105,13 +104,8 @@ def undistort(img_path):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-    
 if __name__ == '__main__':
     
     images = 'test.jpg'
     undistort(images)
 
-        
-        
-        
-        
